@@ -1140,7 +1140,7 @@ export default function App() {
                       </View>
                     ) : null}
 
-                    {index === lines.length - 1 && (
+                                        {index === lines.length - 1 && (
                       <TouchableOpacity
                         style={styles.addInlineButton}
                         onPress={addLine}>
@@ -1155,21 +1155,23 @@ export default function App() {
             );
           })}
 
-          <View style={styles.actionRow}>
-            <TouchableOpacity style={styles.secondaryButton} onPress={clearAll}>
-              <Text style={styles.secondaryButtonText}>Clear</Text>
-            </TouchableOpacity>
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={clearAll}>
+                <Text style={styles.secondaryButtonText}>Clear</Text>
+              </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.exportButton}
-            onPress={handlePrintPdf}>
+              <TouchableOpacity
+                style={styles.exportButton}
+                onPress={handlePrintPdf}>
+                <Text style={styles.exportButtonText}>Print / Save PDF</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 
-            <Text style={styles.exportButtonText}>Print / Save PDF</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Shipping Form Preview</Text>
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Shipping Form Preview</Text>
           <Text style={styles.previewLine}>
             <Text style={styles.detailLabel}>Consignee:</Text>{' '}
             {shipment.consigneeName || '-'}
