@@ -2,7 +2,7 @@
   "expo": {
     "name": "warehouse-dg-program",
     "slug": "snack-78eb3271-7b65-4881-821f-34e34bfabb86",
-"version": "1.0.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,11 +22,12 @@
       },
       "edgeToEdgeEnabled": true
     },
-"web": {
-  "bundler": "metro",
-  "output": "static",
-  "basePath": "/warehouse-dg-program/",
-  "favicon": "./assets/favicon.png"
-}
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    },
+    "experiments": {
+      "baseUrl": "/warehouse-dg-program"
+    }
   }
 }
