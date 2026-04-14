@@ -922,10 +922,9 @@ export default function App() {
   return (
 <SafeAreaView style={styles.page}>
   <ScrollView contentContainerStyle={styles.pageInner}>
-        <Text style={styles.title}>DG Paperwork Generator</Text>
+        <Text style={styles.title}>Dangerous Goods Manager</Text>
         <Text style={styles.subtitle}>
-          Pick the product, tap the size, enter the quantity, and let the app do
-          the dull bit.
+          Hazardous Materials Documentation System
         </Text>
 
         <View style={styles.card}>
@@ -1296,12 +1295,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff',
     borderRadius: 14,
     padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
     elevation: 2,
@@ -1315,7 +1314,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#374151',
+    color: '#1f2a3d',
     marginBottom: 6,
     marginTop: 6,
   },
@@ -1326,7 +1325,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f2f5',
   },
   multilineInput: {
     minHeight: 80,
@@ -1340,7 +1339,7 @@ const styles = StyleSheet.create({
   },
   lineCard: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#edd8d8',
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
