@@ -920,8 +920,8 @@ export default function App() {
   }
 
   return (
-<SafeAreaView style={styles.page}>
-  <ScrollView contentContainerStyle={styles.pageInner}>
+    <SafeAreaView style={styles.page}>
+      <ScrollView contentContainerStyle={styles.pageInner}>
         <Text style={styles.title}>Dangerous Goods Manager</Text>
         <Text style={styles.subtitle}>
           Hazardous Materials Documentation System
@@ -1033,7 +1033,8 @@ export default function App() {
                         selectedValue={line.baseProductId}
                         onValueChange={(value) =>
                           updateLine(line.key, 'baseProductId', value)
-                        }>
+                        }
+                        style={styles.picker}>
                         <Picker.Item label="Choose a DG product..." value="" />
                         {PRODUCT_OPTIONS.map((item) => (
                           <Picker.Item
@@ -1139,7 +1140,7 @@ export default function App() {
                       </View>
                     ) : null}
 
-                                        {index === lines.length - 1 && (
+                    {index === lines.length - 1 && (
                       <TouchableOpacity
                         style={styles.addInlineButton}
                         onPress={addLine}>
@@ -1154,23 +1155,21 @@ export default function App() {
             );
           })}
 
-            <View style={styles.actionRow}>
-              <TouchableOpacity
-                style={styles.secondaryButton}
-                onPress={clearAll}>
-                <Text style={styles.secondaryButtonText}>Clear</Text>
-              </TouchableOpacity>
+          <View style={styles.actionRow}>
+            <TouchableOpacity style={styles.secondaryButton} onPress={clearAll}>
+              <Text style={styles.secondaryButtonText}>Clear</Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.exportButton}
-                onPress={handlePrintPdf}>
-                <Text style={styles.exportButtonText}>Print / Save PDF</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.exportButton}
+              onPress={handlePrintPdf}>
+              <Text style={styles.exportButtonText}>Print / Save PDF</Text>
+            </TouchableOpacity>
           </View>
+        </View>
 
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Shipping Form Preview</Text>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Shipping Form Preview</Text>
           <Text style={styles.previewLine}>
             <Text style={styles.detailLabel}>Consignee:</Text>{' '}
             {shipment.consigneeName || '-'}
@@ -1297,10 +1296,10 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
     borderRadius: 14,
-    padding: 16,
+    padding: 14,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
     elevation: 2,
@@ -1316,14 +1315,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1f2a3d',
     marginBottom: 6,
-    marginTop: 6,
+    marginTop: 4,
   },
   input: {
     borderWidth: 1,
     borderColor: '#d1d5db',
     borderRadius: 10,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 9,
     fontSize: 15,
     backgroundColor: '#f0f2f5',
   },
@@ -1341,8 +1340,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#edd8d8',
     borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
+    padding: 10,
+    marginBottom: 10,
     backgroundColor: '#fafafa',
   },
   lineHeaderButton: {
@@ -1363,12 +1362,21 @@ const styles = StyleSheet.create({
     color: '#4b5563',
     fontSize: 13,
   },
+  picker: {
+    width: '100%',
+    height: '100%',
+    color: '#111827',
+    backgroundColor: 'transparent',
+    borderWidth: 0, // important
+  },
   pickerWrap: {
     borderWidth: 1,
     borderColor: '#d1d5db',
     borderRadius: 10,
     overflow: 'hidden',
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f2f5',
+    justifyContent: 'center',
+    height: 44,
   },
   sizeButtonWrap: {
     flexDirection: 'row',
@@ -1412,21 +1420,22 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   addInlineButton: {
-    marginTop: 12,
+    marginTop: 10,
     backgroundColor: '#111827',
-    paddingVertical: 10,
+    paddingVertical: 9,
     borderRadius: 10,
     alignItems: 'center',
   },
   addInlineButtonText: {
     color: '#fff',
     fontWeight: '700',
+    fontSize: 14,
   },
   actionRow: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 12,
-    marginBottom: 12,
+    marginTop: 6,
+    marginBottom: 0,
   },
   primaryButton: {
     flex: 1,
@@ -1444,7 +1453,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#e5e7eb',
     borderRadius: 10,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: 'center',
   },
   secondaryButtonText: {
@@ -1456,7 +1465,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#166534',
     borderRadius: 10,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: 'center',
   },
   exportButtonText: {
@@ -1517,16 +1526,16 @@ const styles = StyleSheet.create({
     padding: 12,
     marginTop: 10,
   },
-page: {
-  flex: 1,
-  backgroundColor: '#f3f4f6',
-},
+  page: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+  },
 
-pageInner: {
-  width: '100%',
-  maxWidth: 1100,
-  alignSelf: 'center',
-  paddingHorizontal: 16,
-  paddingVertical: 20,
-},
+  pageInner: {
+    width: '100%',
+    maxWidth: 1100,
+    alignSelf: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+  },
 });
