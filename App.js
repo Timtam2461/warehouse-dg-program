@@ -1159,16 +1159,11 @@ export default function App() {
             <TouchableOpacity style={styles.secondaryButton} onPress={clearAll}>
               <Text style={styles.secondaryButtonText}>Clear</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={handleGenerate}>
-              <Text style={styles.primaryButtonText}>Generate Preview</Text>
-            </TouchableOpacity>
-          </View>
 
           <TouchableOpacity
             style={styles.exportButton}
             onPress={handlePrintPdf}>
+
             <Text style={styles.exportButtonText}>Print / Save PDF</Text>
           </TouchableOpacity>
         </View>
@@ -1428,9 +1423,9 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     gap: 12,
-    marginTop: 8,
+    marginTop: 12,
+    marginBottom: 12,
   },
   primaryButton: {
     flex: 1,
@@ -1457,7 +1452,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   exportButton: {
-    marginTop: 12,
+    flex: 1,
     backgroundColor: '#166534',
     borderRadius: 10,
     paddingVertical: 12,
