@@ -920,8 +920,8 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
+<SafeAreaView style={styles.page}>
+  <ScrollView contentContainerStyle={styles.pageInner}>
         <Text style={styles.title}>DG Paperwork Generator</Text>
         <Text style={styles.subtitle}>
           Pick the product, tap the size, enter the quantity, and let the app do
@@ -1521,4 +1521,16 @@ const styles = StyleSheet.create({
     padding: 12,
     marginTop: 10,
   },
+page: {
+  flex: 1,
+  backgroundColor: '#f3f4f6',
+},
+
+pageInner: {
+  width: '100%',
+  maxWidth: 1100,
+  alignSelf: 'center',
+  paddingHorizontal: 16,
+  paddingVertical: 20,
+},
 });
