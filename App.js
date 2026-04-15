@@ -423,24 +423,34 @@ const buildCombinedPrintHtml = (computedLines, shipment) => {
             margin: 8mm;
           }
 
-          body {
-            font-family: Arial, Helvetica, sans-serif;
-            color: #111;
-            margin: 0;
-            font-size: 10px;
-          }
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #111;
+  margin: 0;
+  padding: 0;
+  font-size: 10px;
+}
+.shipping-page,
+.page {
+  page-break-after: always;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
 
-          .shipping-page,
-          .page {
-            page-break-after: always;
-            min-height: 100vh;
-          }
+.shipping-page {
+  width: 190mm;
+  margin: 0 auto;
+}
 
-          .shipping-page:last-child,
-          .page:last-child {
-            page-break-after: auto;
-          }
+.page {
+  width: 190mm;
+  margin: 0 auto;
+}
 
+.shipping-page:last-child,
+.page:last-child {
+  page-break-after: auto;
+}
           /* SHIPPING FORM */
           .shipping-page .title {
             text-align: center;
