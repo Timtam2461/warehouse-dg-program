@@ -14,6 +14,9 @@ import { Picker } from '@react-native-picker/picker';
 const SHEET_URL =
   'https://opensheet.elk.sh/18ZNQuizNBCEw6Tkvqg7x73n22FT0DnTFmvxE_ZLdtbs/Sheet1';
 
+const CUSTOMER_SHEET_URL =
+  'https://opensheet.elk.sh/18ZNQuizNBCEw6Tkvqg7x73n22FT0DnTFmvxE_ZLdtbs/Customers';
+
 const useDGProducts = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +64,40 @@ const useDGProducts = () => {
   }, []);
 
   return { data, loading, error };
+};
+
+const useCustomers = () => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const res = await fetch(CUSTOMER_SHEET_URL);
+        const json = await res.json();
+
+        const formatted = json
+          .filter((row) => row.customerCode || row.customerName)
+          .map((row, index) => ({
+            id: row.customerCode || row.customerName || `customer-${index}`,
+            customerCode: String(row.customerCode || '').trim(),
+            customerName: String(row.customerName || '').trim(),
+            addressLine1: String(row.addressLine1 || '').trim(),
+            addressLine2: String(row.addressLine2 || '').trim(),
+            suburb: String(row.suburb || '').trim(),
+            state: String(row.state || '').trim(),
+            postcode: String(row.postcode || '').trim(),
+          }));
+
+        setData(formatted);
+      } catch (e) {
+        console.error('Failed to load customer data', e);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
+
+  return { data };
 };
 
 const createEmptyLine = () => ({
@@ -719,6 +756,7 @@ body {
 
 export default function App() {
   const { data: DG_PRODUCTS, loading, error } = useDGProducts();
+  const { data: CUSTOMERS } = useCustomers();
 
   const PRODUCT_OPTIONS = useMemo(() => {
     return Array.from(
@@ -731,9 +769,19 @@ export default function App() {
     ).sort((a, b) => a.name.localeCompare(b.name));
   }, [DG_PRODUCTS]);
 
+  const CUSTOMER_OPTIONS = useMemo(() => {
+    return CUSTOMERS.map((item) => ({
+      id: item.customerCode,
+      name: item.customerCode
+        ? `${item.customerCode} - ${item.customerName}`
+        : item.customerName,
+    })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [CUSTOMERS]);
+
   const [shipment, setShipment] = useState({
     orderNumber: '',
     consignmentNumber: '',
+    customerLookup: '',
     consigneeName: '',
     consigneeAddress: '',
     date: getTodayAu(),
@@ -788,6 +836,32 @@ export default function App() {
     setShipment((prev) => ({ ...prev, [field]: value }));
   };
 
+  const applyCustomerToShipment = (customerCode) => {
+    const selected = CUSTOMERS.find(
+      (item) => item.customerCode === customerCode
+    );
+
+    if (!selected) {
+      updateShipment('customerLookup', customerCode);
+      return;
+    }
+
+    const addressParts = [
+      selected.addressLine1,
+      selected.addressLine2,
+      selected.suburb,
+      selected.state,
+      selected.postcode,
+    ].filter(Boolean);
+
+    setShipment((prev) => ({
+      ...prev,
+      customerLookup: selected.customerCode || '',
+      consigneeName: selected.customerName || '',
+      consigneeAddress: addressParts.join(', '),
+    }));
+  };
+
   const updateLine = (key, field, value) => {
     setLines((prev) =>
       prev.map((line) => {
@@ -830,37 +904,18 @@ export default function App() {
     });
   };
 
-  const clearAll = () => {
-    setShipment({
-      orderNumber: '',
-      consignmentNumber: '',
-      consigneeName: '',
-      consigneeAddress: '',
-      date: getTodayAu(),
-      outerPackaging: 'CARTON',
-    });
-    setLines([createEmptyLine()]);
-  };
-
-  const handleGenerate = () => {
-    if (!shipment.consigneeName.trim()) {
-      Alert.alert('Missing consignee', 'Please enter the consignee name.');
-      return;
-    }
-
-    if (computedLines.length === 0) {
-      Alert.alert(
-        'No DG lines',
-        'Please add at least one DG product and quantity.'
-      );
-      return;
-    }
-
-    Alert.alert(
-      'Preview ready',
-      'The summary below is ready. Print / Save PDF when you want the paperwork.'
-    );
-  };
+const clearAll = () => {
+  setShipment({
+    orderNumber: '',
+    consignmentNumber: '',
+    customerLookup: '',
+    consigneeName: '',
+    consigneeAddress: '',
+    date: getTodayAu(),
+    outerPackaging: 'CARTON',
+  });
+  setLines([createEmptyLine()]);
+};
 
   const handlePrintPdf = () => {
     if (!shipment.consigneeName.trim()) {
@@ -963,6 +1018,19 @@ export default function App() {
             onChangeText={(value) => updateShipment('date', value)}
             placeholder="DD/MM/YYYY"
           />
+
+          <Text style={styles.label}>Customer Lookup</Text>
+          <View style={styles.pickerWrap}>
+            <Picker
+              selectedValue={shipment.customerLookup}
+              onValueChange={(value) => applyCustomerToShipment(value)}
+              style={styles.picker}>
+              <Picker.Item label="Select saved customer..." value="" />
+              {CUSTOMER_OPTIONS.map((item) => (
+                <Picker.Item key={item.id} label={item.name} value={item.id} />
+              ))}
+            </Picker>
+          </View>
 
           <Text style={styles.label}>Consignee Name</Text>
           <TextInput
