@@ -386,16 +386,23 @@ const buildShippingFormHtml = (computedLines, shipment) => {
 
           <table class="top-table">
             <tr>
-              <td style="width: 70%;">
-                <span class="label">CONSIGNEE:</span> ${escapeHtml(
-                  shipment.consigneeName
-                )}
-                ${
-                  shipment.consigneeAddress
-                    ? `<br />${escapeHtml(shipment.consigneeAddress)}`
-                    : ''
-                }
-              </td>
+<td style="width: 70%; padding: 8px 10px;">
+  <div style="font-size: 11px; font-weight: 700; margin-bottom: 2px;">
+    CONSIGNEE:
+  </div>
+
+  <div style="font-size: 17px; font-weight: 700; line-height: 1.15;">
+    ${escapeHtml(shipment.consigneeName || '-')}
+  </div>
+
+  ${
+    shipment.consigneeAddress
+      ? `<div style="font-size: 13px; margin-top: 2px; line-height: 1.2;">
+          ${escapeHtml(shipment.consigneeAddress)}
+        </div>`
+      : ''
+  }
+</td>
               <td style="width: 30%;">
                 <span class="label">CONSIGNMENT NO.</span><br />
                 ${escapeHtml(shipment.consignmentNumber)}
@@ -496,6 +503,31 @@ body {
             margin-bottom: 2px;
             text-transform: uppercase;
           }
+
+          .consignee-cell {
+  padding: 8px 10px !important;
+}
+
+.consignee-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.consignee-name {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 2px;
+}
+
+.consignee-address {
+  display: block;
+  font-size: 13px;
+  line-height: 1.2;
+}
 
           .shipping-page .subtitle {
             text-align: center;
@@ -904,18 +936,18 @@ export default function App() {
     });
   };
 
-const clearAll = () => {
-  setShipment({
-    orderNumber: '',
-    consignmentNumber: '',
-    customerLookup: '',
-    consigneeName: '',
-    consigneeAddress: '',
-    date: getTodayAu(),
-    outerPackaging: 'CARTON',
-  });
-  setLines([createEmptyLine()]);
-};
+  const clearAll = () => {
+    setShipment({
+      orderNumber: '',
+      consignmentNumber: '',
+      customerLookup: '',
+      consigneeName: '',
+      consigneeAddress: '',
+      date: getTodayAu(),
+      outerPackaging: 'CARTON',
+    });
+    setLines([createEmptyLine()]);
+  };
 
   const handlePrintPdf = () => {
     if (!shipment.consigneeName.trim()) {
@@ -1025,7 +1057,7 @@ const clearAll = () => {
               selectedValue={shipment.customerLookup}
               onValueChange={(value) => applyCustomerToShipment(value)}
               style={styles.picker}>
-              <Picker.Item label="Select saved customer..." value="" />
+              <Picker.Item label="Select Customer..." value="" />
               {CUSTOMER_OPTIONS.map((item) => (
                 <Picker.Item key={item.id} label={item.name} value={item.id} />
               ))}
@@ -1338,74 +1370,80 @@ const clearAll = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f4f6f8',
+    backgroundColor: '#e9eef2',
   },
   container: {
-    padding: 16,
-    paddingBottom: 40,
+    padding: 20,
+    paddingBottom: 48,
   },
   loadingWrap: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-    backgroundColor: '#f4f6f8',
+    backgroundColor: '#e9eef2',
   },
   loadingText: {
     fontSize: 16,
-    color: '#374151',
+    color: '#475569',
+    fontWeight: '500',
   },
   errorText: {
     fontSize: 16,
-    color: '#b91c1c',
+    color: '#b45309',
     textAlign: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '700',
-    color: '#15202b',
-    marginBottom: 6,
+    color: '#1e293b',
+    marginBottom: 4,
+    letterSpacing: 0.2,
   },
   subtitle: {
     fontSize: 14,
-    color: '#4b5563',
-    marginBottom: 16,
+    color: '#64748b',
+    marginBottom: 18,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
+    backgroundColor: '#f8fafc',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: '#d8e1e8',
+    shadowColor: '#0f172a',
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 2,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
+    color: '#223045',
     marginBottom: 12,
+    letterSpacing: 0.2,
   },
   label: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1f2a3d',
+    color: '#475569',
     marginBottom: 6,
     marginTop: 4,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: '#cbd5e1',
     borderRadius: 10,
     paddingHorizontal: 12,
-    paddingVertical: 9,
+    paddingVertical: 10,
     fontSize: 15,
-    backgroundColor: '#f0f2f5',
+    color: '#1e293b',
+    backgroundColor: '#eef3f7',
   },
   multilineInput: {
-    minHeight: 80,
+    minHeight: 84,
     textAlignVertical: 'top',
   },
   rowBetween: {
@@ -1416,11 +1454,11 @@ const styles = StyleSheet.create({
   },
   lineCard: {
     borderWidth: 1,
-    borderColor: '#edd8d8',
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 10,
-    backgroundColor: '#fafafa',
+    borderColor: '#d7e0e8',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 12,
+    backgroundColor: '#fdfefe',
   },
   lineHeaderButton: {
     flex: 1,
@@ -1428,33 +1466,33 @@ const styles = StyleSheet.create({
   lineTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#111827',
+    color: '#223045',
     marginBottom: 2,
   },
   removeText: {
-    color: '#b91c1c',
+    color: '#9f3a38',
     fontWeight: '600',
   },
   collapsedSummary: {
     marginTop: 8,
-    color: '#4b5563',
+    color: '#64748b',
     fontSize: 13,
+  },
+  pickerWrap: {
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#eef3f7',
+    justifyContent: 'center',
+    height: 46,
   },
   picker: {
     width: '100%',
     height: '100%',
-    color: '#111827',
+    color: '#1e293b',
     backgroundColor: 'transparent',
-    borderWidth: 0, // important
-  },
-  pickerWrap: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 10,
-    overflow: 'hidden',
-    backgroundColor: '#f0f2f5',
-    justifyContent: 'center',
-    height: 44,
+    borderWidth: 0,
   },
   sizeButtonWrap: {
     flexDirection: 'row',
@@ -1465,108 +1503,115 @@ const styles = StyleSheet.create({
   },
   sizeButton: {
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: '#c9d5df',
     borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: '#fff',
+    backgroundColor: '#f3f6f9',
   },
   sizeButtonSelected: {
-    backgroundColor: '#111827',
-    borderColor: '#111827',
+    backgroundColor: '#31465f',
+    borderColor: '#31465f',
   },
   sizeButtonText: {
-    color: '#111827',
+    color: '#334155',
     fontWeight: '600',
     fontSize: 13,
   },
   sizeButtonTextSelected: {
-    color: '#fff',
+    color: '#ffffff',
   },
   detailsBox: {
     marginTop: 12,
     padding: 12,
     borderRadius: 10,
-    backgroundColor: '#eef4ff',
+    backgroundColor: '#eaf1f6',
+    borderWidth: 1,
+    borderColor: '#d6e1ea',
   },
   detailText: {
     fontSize: 13,
-    color: '#1f2937',
+    color: '#334155',
     marginBottom: 4,
   },
   detailLabel: {
     fontWeight: '700',
+    color: '#1f2f43',
   },
   addInlineButton: {
     marginTop: 10,
-    backgroundColor: '#111827',
-    paddingVertical: 9,
+    backgroundColor: '#2d3f55',
+    paddingVertical: 10,
     borderRadius: 10,
     alignItems: 'center',
   },
   addInlineButtonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontWeight: '700',
     fontSize: 14,
+    letterSpacing: 0.2,
   },
   actionRow: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 6,
+    marginTop: 8,
     marginBottom: 0,
   },
   primaryButton: {
     flex: 1,
-    backgroundColor: '#111827',
+    backgroundColor: '#2d3f55',
     borderRadius: 10,
-    paddingVertical: 12,
+    paddingVertical: 11,
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontWeight: '700',
     fontSize: 15,
   },
   secondaryButton: {
     flex: 1,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#dce4ea',
     borderRadius: 10,
-    paddingVertical: 10,
+    paddingVertical: 11,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#c7d1d9',
   },
   secondaryButtonText: {
-    color: '#111827',
+    color: '#223045',
     fontWeight: '700',
     fontSize: 15,
   },
   exportButton: {
     flex: 1,
-    backgroundColor: '#166534',
+    backgroundColor: '#355e52',
     borderRadius: 10,
-    paddingVertical: 10,
+    paddingVertical: 11,
     alignItems: 'center',
   },
   exportButtonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontWeight: '700',
     fontSize: 15,
+    letterSpacing: 0.2,
   },
   previewLine: {
     fontSize: 13,
-    color: '#1f2937',
-    marginBottom: 4,
+    color: '#334155',
+    marginBottom: 5,
   },
   previewTableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#111827',
+    backgroundColor: '#2d3f55',
     borderRadius: 8,
-    paddingVertical: 8,
+    paddingVertical: 9,
     paddingHorizontal: 4,
     marginTop: 12,
   },
   previewHeaderCell: {
     flex: 1,
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 11,
     fontWeight: '700',
     paddingHorizontal: 4,
@@ -1574,14 +1619,15 @@ const styles = StyleSheet.create({
   previewTableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: '#d7e0e8',
     paddingVertical: 10,
     paddingHorizontal: 4,
+    backgroundColor: '#f8fafc',
   },
   previewCell: {
     flex: 1,
     fontSize: 11,
-    color: '#111827',
+    color: '#223045',
     paddingHorizontal: 4,
   },
   cellLarge: {
@@ -1593,27 +1639,26 @@ const styles = StyleSheet.create({
   emptyState: {
     marginTop: 12,
     fontSize: 13,
-    color: '#6b7280',
+    color: '#64748b',
     fontStyle: 'italic',
   },
   emergencyBox: {
     borderWidth: 1,
-    borderColor: '#dbe4f0',
-    backgroundColor: '#f8fbff',
+    borderColor: '#d6e1ea',
+    backgroundColor: '#f1f5f8',
     borderRadius: 10,
     padding: 12,
     marginTop: 10,
   },
   page: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#e9eef2',
   },
-
   pageInner: {
     width: '100%',
     maxWidth: 1100,
     alignSelf: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 22,
   },
 });
