@@ -1484,7 +1484,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: '#64748b',
+    color: '#363636',
     marginBottom: 18,
   },
   card: {
@@ -1562,7 +1562,7 @@ const styles = StyleSheet.create({
   },
   pickerWrap: {
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: '#940005',
     borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: '#eef3f7',
@@ -1572,7 +1572,7 @@ const styles = StyleSheet.create({
   picker: {
     width: '100%',
     height: '100%',
-    color: '#1e293b',
+    color: '#940005',
     backgroundColor: 'transparent',
     borderWidth: 0,
   },
@@ -1667,7 +1667,7 @@ const styles = StyleSheet.create({
   },
   exportButton: {
     flex: 1,
-    backgroundColor: '#355e52',
+    backgroundColor: '#4dbd8b',
     borderRadius: 10,
     paddingVertical: 11,
     alignItems: 'center',
