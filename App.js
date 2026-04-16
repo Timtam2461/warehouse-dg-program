@@ -147,11 +147,123 @@ const buildPrintHtml = (computedLines, shipment) => {
     return diamonds[String(dgClass)] || '';
   }
 
+  function getEmergencySections(dgClass) {
+  const sections = {
+    3: {
+      fire: `
+        <ul>
+          <li>HIGHLY FLAMMABLE. These products have a low flash point. They will ignite easily by heat, sparks, or flames at ambient temperatures.</li>
+          <li>Vapours may form explosive mixtures with air.</li>
+          <li>Vapours may travel to source of ignition and flash back.</li>
+          <li>Runoff to sewer may create fire or explosion hazard.</li>
+          <li>Use alcohol resistant foam, dry chemical, carbon dioxide, water fog, or water spray. Do not use water jets.</li>
+          <li>Cool containers with water flooding until well after the fire is out.</li>
+          <li>Avoid getting water inside containers.</li>
+        </ul>
+      `,
+      spill: `
+        <ul>
+          <li>ELIMINATE all ignition sources (no smoking, flares, sparks, or flames) within 50 m. All equipment used in handling the product must be earthed.</li>
+          <li>Do not touch or walk through spilled material.</li>
+          <li>Stop leak if safe to do so. Prevent entry into waterways, drains, or confined areas.</li>
+          <li>Vapour suppressing foam may be used to control vapours.</li>
+          <li>Absorb spill with earth, sand, or other non combustible material and place it in loosely covered metal or plastic containers for later disposal.</li>
+          <li>Water spray may be used to knock down or divert vapour clouds.</li>
+          <li>SEEK EXPERT ADVICE ON HANDLING AND DISPOSAL.</li>
+        </ul>
+      `,
+      firstAid: `
+        <ul>
+          <li>Move affected person to fresh air. Begin resuscitation if person is not breathing.</li>
+          <li>Administer oxygen if breathing is difficult.</li>
+          <li>Remove contaminated clothing and shoes immediately.</li>
+          <li>In case of contact with material, immediately flush eyes or skin with running water for at least 15 minutes.</li>
+          <li>Do not induce vomiting. Seek immediate medical advice.</li>
+          <li>Ensure attending personnel are aware of the material involved, and take cautions to protect themselves.</li>
+        </ul>
+      `,
+    },
+
+    4.1: {
+      fire: `
+        <ul>
+          <li>FLAMMABLE SOLID. May ignite through heat, sparks, flame, friction, or impact.</li>
+          <li>May burn rapidly and produce irritating or toxic fumes when involved in a fire.</li>
+          <li>Keep containers cool with water spray if exposed to fire.</li>
+          <li>Use dry chemical, carbon dioxide, foam, or water fog. Avoid high pressure water jets.</li>
+          <li>Runoff from fire control may create pollution hazard.</li>
+        </ul>
+      `,
+      spill: `
+        <ul>
+          <li>ELIMINATE all ignition sources. No smoking, sparks, flames, or friction sources in the area.</li>
+          <li>Do not touch spilled material unless wearing appropriate protective equipment.</li>
+          <li>Stop leak if safe to do so and isolate the area.</li>
+          <li>Prevent entry into drains, waterways, and confined spaces.</li>
+          <li>Sweep up or absorb with dry sand, earth, or other inert non combustible material.</li>
+          <li>Place recovered material into suitable containers for disposal.</li>
+          <li>SEEK EXPERT ADVICE ON HANDLING AND DISPOSAL.</li>
+        </ul>
+      `,
+      firstAid: `
+        <ul>
+          <li>Move affected person to fresh air. Begin resuscitation if person is not breathing.</li>
+          <li>Administer oxygen if breathing is difficult.</li>
+          <li>Remove contaminated clothing and shoes immediately.</li>
+          <li>In case of contact with material, immediately flush eyes or skin with running water for at least 15 minutes.</li>
+          <li>If swallowed, rinse mouth and seek immediate medical advice. Do not induce vomiting unless directed by medical personnel.</li>
+          <li>Ensure attending personnel are aware of the material involved, and take precautions to protect themselves.</li>
+        </ul>
+      `,
+    },
+
+    8: {
+      fire: `
+        <ul>
+          <li>CORROSIVE SUBSTANCE. Material may not burn, but heating can produce hazardous or toxic fumes.</li>
+          <li>Containers may rupture when heated.</li>
+          <li>Use extinguishing media appropriate to the surrounding fire.</li>
+          <li>Keep containers cool with water spray if exposed to fire.</li>
+          <li>Avoid contact of leaked material with metals unless compatibility is known.</li>
+        </ul>
+      `,
+      spill: `
+        <ul>
+          <li>Do not touch spilled material without suitable protective clothing, gloves, and eye or face protection.</li>
+          <li>Stop leak if safe to do so and isolate the hazard area.</li>
+          <li>Prevent entry into waterways, drains, and confined areas.</li>
+          <li>Absorb spill with dry earth, sand, or other inert material.</li>
+          <li>Carefully collect absorbed material into suitable corrosion resistant containers for disposal.</li>
+          <li>Wash spill area with large quantities of water only if safe and appropriate for the product and surroundings.</li>
+          <li>SEEK EXPERT ADVICE ON HANDLING AND DISPOSAL.</li>
+        </ul>
+      `,
+      firstAid: `
+        <ul>
+          <li>Move affected person to fresh air. Begin resuscitation if person is not breathing.</li>
+          <li>Remove contaminated clothing and shoes immediately.</li>
+          <li>In case of contact with material, immediately flush eyes or skin with running water for at least 15 minutes.</li>
+          <li>Seek urgent medical attention for all eye, skin, or ingestion exposures.</li>
+          <li>If swallowed, rinse mouth. Do not induce vomiting unless directed by medical personnel.</li>
+          <li>Ensure attending personnel are aware of the material involved, and take precautions to protect themselves.</li>
+        </ul>
+      `,
+    },
+  };
+
+  return sections[String(dgClass)] || {
+    fire: '<ul><li>Refer to product SDS for fire and explosion guidance.</li></ul>',
+    spill: '<ul><li>Refer to product SDS for spill or leak guidance.</li></ul>',
+    firstAid: '<ul><li>Refer to product SDS for first aid guidance.</li></ul>',
+  };
+}
+
   const pages = computedLines
     .map((line, index) => {
       const product = line.product;
       const diamondSrc = getDiamondSrc(product.dgClass);
       const subtitle = getSubtitle(product.dgClass);
+      const emergency = getEmergencySections(product.dgClass);
 
       return `
   <section class="page">
@@ -288,44 +400,18 @@ const buildPrintHtml = (computedLines, shipment) => {
 
     <div class="bar-title">EMERGENCY RESPONSE</div>
     <table class="guide-table">
-      <tr>
-        <td class="left-col">Fire</td>
-        <td>
-          <ul>
-            <li>Small fire: Use foam, dry chemical, CO₂, or water spray.</li>
-            <li>Large fire: Use foam, fog, or water spray. Do not use water jets.</li>
-            <li>Cool containers with water flooding until well after the fire is out.</li>
-            <li>Avoid getting water inside containers.</li>
-          </ul>
-        </td>
-      </tr>
-      <tr>
-        <td class="left-col">Spill or leak</td>
-        <td>
-          <ul>
-            <li>ELIMINATE all ignition sources (no smoking, flares, sparks, or flames) within 50 m. All equipment used in handling the product must be earthed.</li>
-            <li>Do not touch or walk through spilled material.</li>
-            <li>Stop leak if safe to do so. Prevent entry into waterways, drains, or confined areas.</li>
-            <li>Vapour suppressing foam may be used to control vapours.</li>
-            <li>Absorb spill with earth, sand, or other non combustible material and place it in loosely covered metal or plastic containers for later disposal.</li>
-            <li>Water spray may be used to knock down or divert vapour clouds.</li>
-            <li>SEEK EXPERT ADVICE ON HANDLING AND DISPOSAL.</li>
-          </ul>
-        </td>
-      </tr>
-      <tr>
-        <td class="left-col">First aid</td>
-        <td>
-          <ul>
-            <li>Move affected person to fresh air Begin resuscitation if person is not breathing.</li>
-            <li>Administer oxygen if breathing is difficult.</li>
-            <li>Remove contaminated clothing and shoes immediately.</li>
-            <li>In case of contact with material, immediately flush eyes or skin with running water for at least 15 minutes.</li>
-            <li>Do not induce vomiting. Seek immediate medical advice.</li>
-            <li>Ensure attending personnel are aware of the material involved, and take cautions to protect themselves.</li>
-          </ul>
-        </td>
-      </tr>
+<tr>
+  <td class="left-col">Fire</td>
+  <td>${emergency.fire}</td>
+</tr>
+<tr>
+  <td class="left-col">Spill or leak</td>
+  <td>${emergency.spill}</td>
+</tr>
+<tr>
+  <td class="left-col">First aid</td>
+  <td>${emergency.firstAid}</td>
+</tr>
     </table>
   </section>
 `;
