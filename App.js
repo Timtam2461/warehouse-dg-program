@@ -53,7 +53,7 @@ const useDGProducts = () => {
       } catch (e) {
         console.error('Failed to load DG data', e);
         setError(
-          'Failed to load DG products. Check the sheet link and tab name.'
+          'Failed to load DG products. Ask Jay to reset.'
         );
       } finally {
         setLoading(false);
@@ -117,6 +117,55 @@ const formatNumber = (value) => {
 };
 
 const getTodayAu = () => new Date().toLocaleDateString('en-AU');
+
+const DRAFT_STORAGE_KEY = 'dg-current-draft-v1';
+
+const getDefaultShipment = () => ({
+  consignmentNumber: '',
+  customerLookup: '',
+  consigneeName: '',
+  consigneeAddress: '',
+  date: getTodayAu(),
+  outerPackaging: 'CARTON',
+});
+
+const saveDraftToStorage = (shipment, lines) => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const payload = {
+      shipment,
+      lines,
+      savedAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
+  } catch (err) {
+    console.error('Failed to save draft', err);
+  }
+};
+
+const loadDraftFromStorage = () => {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    console.error('Failed to load draft', err);
+    return null;
+  }
+};
+
+const clearDraftFromStorage = () => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch (err) {
+    console.error('Failed to clear draft', err);
+  }
+};
 
 const buildPrintHtml = (computedLines, shipment) => {
   const escapeHtml = (value) =>
@@ -902,16 +951,33 @@ export default function App() {
     })).sort((a, b) => a.name.localeCompare(b.name));
   }, [CUSTOMERS]);
 
-  const [shipment, setShipment] = useState({
-    consignmentNumber: '',
-    customerLookup: '',
-    consigneeName: '',
-    consigneeAddress: '',
-    date: getTodayAu(),
-    outerPackaging: 'CARTON',
-  });
+  const [shipment, setShipment] = useState(() => {
+  const draft = loadDraftFromStorage();
+  return draft?.shipment || getDefaultShipment();
+});
 
-  const [lines, setLines] = useState([createEmptyLine()]);
+const [lines, setLines] = useState(() => {
+  const draft = loadDraftFromStorage();
+  return draft?.lines?.length ? draft.lines : [createEmptyLine()];
+});
+
+useEffect(() => {
+  const hasUsefulData =
+    shipment.consignmentNumber.trim() ||
+    shipment.customerLookup.trim() ||
+    shipment.consigneeName.trim() ||
+    shipment.consigneeAddress.trim() ||
+    lines.some(
+      (line) =>
+        String(line.baseProductId || '').trim() ||
+        String(line.productId || '').trim() ||
+        String(line.quantity || '').trim()
+    );
+
+  if (!hasUsefulData) return;
+
+  saveDraftToStorage(shipment, lines);
+}, [shipment, lines]);
 
   const selectedProducts = useMemo(() => {
     const map = {};
@@ -1027,17 +1093,11 @@ export default function App() {
     });
   };
 
-  const clearAll = () => {
-    setShipment({
-      consignmentNumber: '',
-      customerLookup: '',
-      consigneeName: '',
-      consigneeAddress: '',
-      date: getTodayAu(),
-      outerPackaging: 'CARTON',
-    });
-    setLines([createEmptyLine()]);
-  };
+const clearAll = () => {
+  clearDraftFromStorage();
+  setShipment(getDefaultShipment());
+  setLines([createEmptyLine()]);
+};
 
   const handlePrintPdf = () => {
     if (!shipment.consigneeName.trim()) {
@@ -1113,6 +1173,10 @@ export default function App() {
         <Text style={styles.subtitle}>
           Hazardous Materials Documentation System
         </Text>
+        <Text style={styles.required}>
+          *Required Field
+        </Text>
+
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Shipment Details</Text>
@@ -1133,7 +1197,7 @@ export default function App() {
             placeholder="DD/MM/YYYY"
           />
 
-          <Text style={styles.label}>Customer Lookup</Text>
+          <Text style={styles.requiredText}>*Customer Lookup</Text>
           <View style={styles.pickerWrap}>
             <Picker
               selectedValue={shipment.customerLookup}
@@ -1219,7 +1283,7 @@ export default function App() {
 
                 {line.isExpanded && (
                   <>
-                    <Text style={styles.label}>Select Product</Text>
+                    <Text style={styles.requiredText}>*Select Product</Text>
                     <View style={styles.pickerWrap}>
                       <Picker
                         selectedValue={line.baseProductId}
@@ -1361,7 +1425,7 @@ export default function App() {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Shipping Form Preview</Text>
+          <Text style={styles.sectionTitle}>Shipping Form Summary</Text>
           <Text style={styles.previewLine}>
             <Text style={styles.detailLabel}>Consignee:</Text>{' '}
             {shipment.consigneeName || '-'}
@@ -1420,7 +1484,7 @@ export default function App() {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Emergency Procedure Preview</Text>
+          <Text style={styles.sectionTitle}>Emergency Procedure Summary</Text>
           {computedLines.length === 0 ? (
             <Text style={styles.emptyState}>
               Add a DG line to preview emergency details.
@@ -1514,6 +1578,14 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginTop: 4,
   },
+    requiredText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: 'red',
+    marginBottom: 6,
+    marginTop: 4,
+  },
+
   input: {
     borderWidth: 1,
     borderColor: '#cbd5e1',
@@ -1562,7 +1634,7 @@ const styles = StyleSheet.create({
   },
   pickerWrap: {
     borderWidth: 1,
-    borderColor: '#940005',
+    borderColor: '#cbd5e1',
     borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: '#eef3f7',
@@ -1572,7 +1644,7 @@ const styles = StyleSheet.create({
   picker: {
     width: '100%',
     height: '100%',
-    color: '#940005',
+    color: '#484f57',
     backgroundColor: 'transparent',
     borderWidth: 0,
   },
@@ -1638,18 +1710,6 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 8,
     marginBottom: 0,
-  },
-  primaryButton: {
-    flex: 1,
-    backgroundColor: '#2d3f55',
-    borderRadius: 10,
-    paddingVertical: 11,
-    alignItems: 'center',
-  },
-  primaryButtonText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 15,
   },
   secondaryButton: {
     flex: 1,
@@ -1743,4 +1803,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 22,
   },
+  required: {
+  color: 'red',
+  padding: 1,
+  marginBottom: 10,
+}
 });
