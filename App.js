@@ -52,9 +52,7 @@ const useDGProducts = () => {
         setData(formatted);
       } catch (e) {
         console.error('Failed to load DG data', e);
-        setError(
-          'Failed to load DG products. Ask Jay to reset.'
-        );
+        setError('Failed to load DG products. Ask Jay to reset.');
       } finally {
         setLoading(false);
       }
@@ -952,32 +950,32 @@ export default function App() {
   }, [CUSTOMERS]);
 
   const [shipment, setShipment] = useState(() => {
-  const draft = loadDraftFromStorage();
-  return draft?.shipment || getDefaultShipment();
-});
+    const draft = loadDraftFromStorage();
+    return draft?.shipment || getDefaultShipment();
+  });
 
-const [lines, setLines] = useState(() => {
-  const draft = loadDraftFromStorage();
-  return draft?.lines?.length ? draft.lines : [createEmptyLine()];
-});
+  const [lines, setLines] = useState(() => {
+    const draft = loadDraftFromStorage();
+    return draft?.lines?.length ? draft.lines : [createEmptyLine()];
+  });
 
-useEffect(() => {
-  const hasUsefulData =
-    shipment.consignmentNumber.trim() ||
-    shipment.customerLookup.trim() ||
-    shipment.consigneeName.trim() ||
-    shipment.consigneeAddress.trim() ||
-    lines.some(
-      (line) =>
-        String(line.baseProductId || '').trim() ||
-        String(line.productId || '').trim() ||
-        String(line.quantity || '').trim()
-    );
+  useEffect(() => {
+    const hasUsefulData =
+      shipment.consignmentNumber.trim() ||
+      shipment.customerLookup.trim() ||
+      shipment.consigneeName.trim() ||
+      shipment.consigneeAddress.trim() ||
+      lines.some(
+        (line) =>
+          String(line.baseProductId || '').trim() ||
+          String(line.productId || '').trim() ||
+          String(line.quantity || '').trim()
+      );
 
-  if (!hasUsefulData) return;
+    if (!hasUsefulData) return;
 
-  saveDraftToStorage(shipment, lines);
-}, [shipment, lines]);
+    saveDraftToStorage(shipment, lines);
+  }, [shipment, lines]);
 
   const selectedProducts = useMemo(() => {
     const map = {};
@@ -1093,11 +1091,11 @@ useEffect(() => {
     });
   };
 
-const clearAll = () => {
-  clearDraftFromStorage();
-  setShipment(getDefaultShipment());
-  setLines([createEmptyLine()]);
-};
+  const clearAll = () => {
+    clearDraftFromStorage();
+    setShipment(getDefaultShipment());
+    setLines([createEmptyLine()]);
+  };
 
   const handlePrintPdf = () => {
     if (!shipment.consigneeName.trim()) {
@@ -1117,10 +1115,7 @@ const clearAll = () => {
     }
 
     if (typeof window === 'undefined') {
-      Alert.alert(
-        'Web only',
-        'PDF printing works from Snack Web in a browser.'
-      );
+      Alert.alert('Web only', 'PDF printing works from a browser.');
       return;
     }
 
@@ -1173,10 +1168,7 @@ const clearAll = () => {
         <Text style={styles.subtitle}>
           Hazardous Materials Documentation System
         </Text>
-        <Text style={styles.required}>
-          *Required Field
-        </Text>
-
+        <Text style={styles.required}>*Required Field</Text>
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Shipment Details</Text>
@@ -1197,7 +1189,7 @@ const clearAll = () => {
             placeholder="DD/MM/YYYY"
           />
 
-          <Text style={styles.requiredText}>*Customer Lookup</Text>
+          <Text style={styles.label}>Customer Lookup</Text>
           <View style={styles.pickerWrap}>
             <Picker
               selectedValue={shipment.customerLookup}
@@ -1210,7 +1202,7 @@ const clearAll = () => {
             </Picker>
           </View>
 
-          <Text style={styles.label}>Consignee Name</Text>
+          <Text style={styles.requiredText}>*Consignee Name</Text>
           <TextInput
             style={styles.input}
             value={shipment.consigneeName}
@@ -1218,7 +1210,7 @@ const clearAll = () => {
             placeholder="Customer / consignee"
           />
 
-          <Text style={styles.label}>Consignee Address</Text>
+          <Text style={styles.requiredText}>*Consignee Address</Text>
           <TextInput
             style={[styles.input, styles.multilineInput]}
             value={shipment.consigneeAddress}
@@ -1240,7 +1232,7 @@ const clearAll = () => {
 
         <View style={styles.card}>
           <View style={styles.rowBetween}>
-            <Text style={styles.sectionTitle}>DG Items</Text>
+            <Text style={styles.sectionTitle}>Dangerous Goods Products</Text>
           </View>
 
           {lines.map((line, index) => {
@@ -1270,7 +1262,7 @@ const clearAll = () => {
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => removeLine(line.key)}>
-                    <Text style={styles.removeText}>Remove</Text>
+                    <Text style={styles.removeText}>Remove Line</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -1291,7 +1283,7 @@ const clearAll = () => {
                           updateLine(line.key, 'baseProductId', value)
                         }
                         style={styles.picker}>
-                        <Picker.Item label="Choose a DG product..." value="" />
+                        <Picker.Item label="Select DG..." value="" />
                         {PRODUCT_OPTIONS.map((item) => (
                           <Picker.Item
                             key={item.id}
@@ -1508,6 +1500,10 @@ const clearAll = () => {
             ))
           )}
         </View>
+        <View style={styles.footerWrap}>
+          <View style={styles.footerLine} />
+          <Text style={styles.footerText}>Made by Jay Torre, April 2026</Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -1578,9 +1574,9 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginTop: 4,
   },
-    requiredText: {
+  requiredText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '450',
     color: 'red',
     marginBottom: 6,
     marginTop: 4,
@@ -1794,7 +1790,7 @@ const styles = StyleSheet.create({
   },
   page: {
     flex: 1,
-    backgroundColor: '#e9eef2',
+    backgroundColor: '#ebeef0',
   },
   pageInner: {
     width: '100%',
@@ -1804,8 +1800,26 @@ const styles = StyleSheet.create({
     paddingVertical: 22,
   },
   required: {
-  color: 'red',
-  padding: 1,
-  marginBottom: 10,
-}
+    color: 'red',
+    padding: 1,
+    marginBottom: 10,
+  },
+  footerWrap: {
+  alignItems: 'center',
+  marginTop: 20,
+  marginBottom: 30,
+},
+
+footerLine: {
+  width: '40%',
+  height: 1,
+  backgroundColor: '#999',
+  marginBottom: 6,
+},
+
+footerText: {
+  fontSize: 10,
+  color: '#c2c2c2',
+  textAlign: 'center',
+},
 });
