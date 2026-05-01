@@ -84,6 +84,7 @@ const useCustomers = () => {
             suburb: String(row.suburb || '').trim(),
             state: String(row.state || '').trim(),
             postcode: String(row.postcode || '').trim(),
+            defaultCourier: String(row.defaultCourier || '').trim(),
           }));
 
         setData(formatted);
@@ -924,10 +925,148 @@ body {
     </html>
   `;
 };
+const buildLabelHtml = (customer, data, cartonCount) => {
+  let labels = '';
+
+  for (let i = 1; i <= cartonCount; i++) {
+    labels += `
+      <div class="label">
+        <div class="top">
+<div class="customer">
+  ${customer.customerName || data.manualCustomerName}
+</div>
+          <div class="code">ACC: ${customer.customerCode}</div>
+        </div>
+
+        <div class="middle">
+<div class="invoice">
+  ${data.invoice ? `INV: ${data.invoice}` : ''}
+</div>
+          <div class="courier">Courier: ${data.courier}</div>
+<div class="address">
+${(data.address || '').replace(/, /g, '<br/>')}
+</div>
+        </div>
+
+        <div class="carton">CARTON ${i} OF ${cartonCount}</div>
+
+        <div class="notes">${data.notes || ''}</div>
+      </div>
+    `;
+  }
+
+  return `
+    <html>
+      <head>
+        <style>
+          @page {
+            size: 100mm 150mm;
+            margin: 0;
+          }
+
+          body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+          }
+
+          .label {
+            width: 100mm;
+            height: 150mm;
+            padding: 8mm;
+            box-sizing: border-box;
+            page-break-after: always;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+          }
+
+          .customer {
+            font-size: 22px;
+            font-weight: bold;
+            text-transform: uppercase;
+          }
+
+          .code {
+            font-size: 14px;
+            margin-bottom: 6px;
+          }
+
+          .middle {
+            font-size: 16px;
+            line-height: 1.4;
+          }
+
+          .address {
+            font-size: 13px;
+            margin-top: 6px;
+          }
+
+          .carton {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            border: 2px solid black;
+            padding: 10px;
+          }
+
+          .notes {
+            font-size: 16px;
+            text-align: center;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body>
+        ${labels}
+      </body>
+    </html>
+  `;
+};
 
 export default function App() {
+  const [screen, setScreen] = useState('menu');
   const { data: DG_PRODUCTS, loading, error } = useDGProducts();
-  const { data: CUSTOMERS } = useCustomers();
+  const { data: customers } = useCustomers();
+
+  const [labelData, setLabelData] = useState({
+    customerId: '',
+    manualCustomerName: '',
+    invoice: '',
+    cartons: '',
+    courier: '',
+    address: '',
+    notes: '',
+  });
+  const handlePrintLabels = () => {
+    const selectedCustomer = customers.find(
+      (c) => c.id === labelData.customerId
+    );
+
+    const manualCustomerName = labelData.manualCustomerName.trim();
+
+    if (!selectedCustomer && !manualCustomerName) {
+      Alert.alert('Please select a customer or enter a one-off customer name');
+      return;
+    }
+
+    const customerForLabel = selectedCustomer || {
+      customerName: manualCustomerName,
+      customerCode: '',
+    };
+    const cartonCount = Number(labelData.cartons);
+    if (!cartonCount || cartonCount < 1) {
+      Alert.alert('Enter valid carton count');
+      return;
+    }
+
+    const html = buildLabelHtml(customerForLabel, labelData, cartonCount);
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    win.print();
+  };
 
   const PRODUCT_OPTIONS = useMemo(() => {
     return Array.from(
@@ -941,13 +1080,15 @@ export default function App() {
   }, [DG_PRODUCTS]);
 
   const CUSTOMER_OPTIONS = useMemo(() => {
-    return CUSTOMERS.map((item) => ({
-      id: item.customerCode,
-      name: item.customerCode
-        ? `${item.customerCode} - ${item.customerName}`
-        : item.customerName,
-    })).sort((a, b) => a.name.localeCompare(b.name));
-  }, [CUSTOMERS]);
+    return customers
+      .map((item) => ({
+        id: item.customerCode,
+        name: item.customerCode
+          ? `${item.customerCode} - ${item.customerName}`
+          : item.customerName,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [customers]);
 
   const [shipment, setShipment] = useState(() => {
     const draft = loadDraftFromStorage();
@@ -1144,6 +1285,163 @@ export default function App() {
       Alert.alert('Print failed', 'The PDF print view could not be created.');
     }
   };
+  if (screen === 'menu') {
+    return (
+      <SafeAreaView style={styles.page}>
+        <ScrollView contentContainerStyle={styles.pageInner}>
+          <Text style={styles.title}>Warehouse Dispatch Program</Text>
+          <Text style={styles.subtitle}>Select what you need to create.</Text>
+
+          <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => setScreen('dg')}>
+              <Text style={styles.menuButtonTitle}>DG Paperwork</Text>
+              <Text style={styles.menuButtonText}>
+                Create dangerous goods shipping forms and emergency procedure
+                guides.
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => setScreen('labels')}>
+              <Text style={styles.menuButtonTitle}>Carton Labels</Text>
+              <Text style={styles.menuButtonText}>
+                Print customer carton labels. Coming soon, because one beast at
+                a time.
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.footerWrap}>
+  <View style={styles.footerLine} />
+  <Text style={styles.footerText}>
+    Made by Juliana Torre, April 2026
+  </Text>
+</View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  if (screen === 'labels') {
+    return (
+      <SafeAreaView style={styles.page}>
+        <ScrollView contentContainerStyle={styles.pageInner}>
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => setScreen('menu')}>
+            <Text style={styles.secondaryButtonText}>Back to Menu</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.title}>Carton Labels</Text>
+
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Carton Labels</Text>
+
+            <Text style={styles.label}>Customer</Text>
+            <Picker
+              selectedValue={labelData.customerId}
+              onValueChange={(value) => {
+                const selected = customers.find((c) => c.id === value);
+
+                const fullAddress = selected
+                  ? [
+                      selected.addressLine1,
+                      selected.addressLine2,
+                      selected.suburb,
+                      selected.state,
+                      selected.postcode,
+                    ]
+                      .filter(Boolean)
+                      .join(', ')
+                  : '';
+
+                setLabelData({
+                  ...labelData,
+                  customerId: value,
+                  courier: selected?.defaultCourier || labelData.courier,
+                  address: fullAddress,
+                });
+              }}>
+              {' '}
+              <Picker.Item label="Select customer..." value="" />
+              {customers.map((c) => (
+                <Picker.Item
+                  key={c.id}
+                  label={`${c.customerName} (${c.customerCode})`}
+                  value={c.id}
+                />
+              ))}
+            </Picker>
+
+            <Text style={styles.label}>Customer Name Override</Text>
+            <TextInput
+              style={styles.input}
+              value={labelData.manualCustomerName}
+              placeholder="Leave blank unless different from selected customer"
+              onChangeText={(text) =>
+                setLabelData({ ...labelData, manualCustomerName: text })
+              }
+            />
+
+            <Text style={styles.label}>Invoice / Order #</Text>
+            <TextInput
+              style={styles.input}
+              value={labelData.invoice}
+              onChangeText={(text) =>
+                setLabelData({ ...labelData, invoice: text })
+              }
+            />
+
+            <Text style={styles.label}>Number of Cartons</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              value={labelData.cartons}
+              onChangeText={(text) =>
+                setLabelData({ ...labelData, cartons: text })
+              }
+            />
+
+            <Text style={styles.label}>Courier</Text>
+            <TextInput
+              style={styles.input}
+              value={labelData.courier}
+              onChangeText={(text) =>
+                setLabelData({ ...labelData, courier: text })
+              }
+            />
+
+            <Text style={styles.label}>Address</Text>
+            <TextInput
+              style={[styles.input, styles.multilineInput]}
+              multiline
+              value={labelData.address}
+              onChangeText={(text) =>
+                setLabelData({ ...labelData, address: text })
+              }
+            />
+
+            <Text style={styles.label}>Notes (optional)</Text>
+            <TextInput
+              style={styles.input}
+              value={labelData.notes}
+              onChangeText={(text) =>
+                setLabelData({ ...labelData, notes: text })
+              }
+            />
+
+            <TouchableOpacity
+              style={styles.labelButton}
+              onPress={handlePrintLabels}>
+              <Text style={styles.labelButtonText}>Print Labels</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   if (loading) {
     return (
@@ -1164,6 +1462,11 @@ export default function App() {
   return (
     <SafeAreaView style={styles.page}>
       <ScrollView contentContainerStyle={styles.pageInner}>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => setScreen('menu')}>
+          <Text style={styles.secondaryButtonText}>Back to Menu</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>Dangerous Goods Manager</Text>
         <Text style={styles.subtitle}>
           Hazardous Materials Documentation System
@@ -1500,10 +1803,6 @@ export default function App() {
             ))
           )}
         </View>
-        <View style={styles.footerWrap}>
-          <View style={styles.footerLine} />
-          <Text style={styles.footerText}>Made by Jay Torre, April 2026</Text>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -1805,21 +2104,55 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   footerWrap: {
-  alignItems: 'center',
-  marginTop: 20,
-  marginBottom: 30,
-},
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 30,
+  },
 
-footerLine: {
-  width: '40%',
+  footerLine: {
   height: 1,
-  backgroundColor: '#999',
+  backgroundColor: '#e5e7eb',
+  width: '60%',
   marginBottom: 6,
 },
 
-footerText: {
-  fontSize: 10,
-  color: '#c2c2c2',
-  textAlign: 'center',
-},
+  footerText: {
+    fontSize: 10,
+    color: '#c2c2c2',
+    textAlign: 'center',
+  },
+  menuButton: {
+    backgroundColor: '#e8eef5',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    borderRadius: 14,
+    padding: 18,
+    marginBottom: 14,
+  },
+
+  menuButtonTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 6,
+  },
+
+  menuButtonText: {
+    fontSize: 14,
+    color: '#475569',
+    lineHeight: 20,
+  },
+  labelButton: {
+    backgroundColor: '#16a34a', // green
+    padding: 16,
+    borderRadius: 10,
+    marginTop: 15,
+    alignItems: 'center',
+  },
+
+  labelButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
 });
