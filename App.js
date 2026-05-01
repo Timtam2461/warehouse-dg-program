@@ -5,6 +5,8 @@ import {
   View,
   Text,
   TextInput,
+  Pressable,
+  Image,
   TouchableOpacity,
   StyleSheet,
   Alert,
@@ -1292,33 +1294,54 @@ export default function App() {
           <Text style={styles.title}>Warehouse Dispatch Program</Text>
           <Text style={styles.subtitle}>Select what you need to create.</Text>
 
-          <View style={styles.card}>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => setScreen('dg')}>
-              <Text style={styles.menuButtonTitle}>DG Paperwork</Text>
-              <Text style={styles.menuButtonText}>
+          <View style={styles.menuGrid}>
+            {/* DG TILE */}
+            <Pressable
+              onPress={() => setScreen('dg')}
+              style={({ pressed }) => [
+                styles.menuTile,
+                styles.menuTileDG,
+                pressed && styles.menuTilePressed,
+              ]}>
+              <Image
+                source={require('./assets/DgDiamond.png')}
+                style={styles.tileBgIcon}
+              />
+              <View style={styles.tileHeader}>
+                <Text style={styles.tileTitle}>DG Paperwork</Text>
+              </View>
+
+              <Text style={styles.tileDesc}>
                 Create dangerous goods shipping forms and emergency procedure
                 guides.
               </Text>
-            </TouchableOpacity>
+            </Pressable>
 
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => setScreen('labels')}>
-              <Text style={styles.menuButtonTitle}>Carton Labels</Text>
-              <Text style={styles.menuButtonText}>
-                Print customer carton labels. Coming soon, because one beast at
-                a time.
-              </Text>
-            </TouchableOpacity>
+            {/* CARTON TILE */}
+            <Pressable
+              onPress={() => setScreen('labels')}
+              style={({ pressed }) => [
+                styles.menuTile,
+                styles.menuTileCarton,
+                pressed && styles.menuTilePressed,
+              ]}>
+              <Image
+                source={require('./assets/ShippingBox.png')}
+                style={styles.tileBgIcon}
+              />
+              <View style={styles.tileHeader}>
+                <Text style={styles.tileTitle}>Carton Labels</Text>
+              </View>
+
+              <Text style={styles.tileDesc}>Print customer carton labels.</Text>
+            </Pressable>
           </View>
           <View style={styles.footerWrap}>
-  <View style={styles.footerLine} />
-  <Text style={styles.footerText}>
-    Made by Juliana Torre, April 2026
-  </Text>
-</View>
+            <View style={styles.footerLine} />
+            <Text style={styles.footerText}>
+              Made by Juliana Torre, April 2026
+            </Text>
+          </View>
         </ScrollView>
       </SafeAreaView>
     );
@@ -1850,7 +1873,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8fafc',
     borderRadius: 16,
     padding: 16,
-    marginBottom: 18,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: '#d8e1e8',
     shadowColor: '#0f172a',
@@ -1891,16 +1914,19 @@ const styles = StyleSheet.create({
     color: '#1e293b',
     backgroundColor: '#eef3f7',
   },
+
   multilineInput: {
     minHeight: 84,
     textAlignVertical: 'top',
   },
+
   rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 10,
   },
+
   lineCard: {
     borderWidth: 1,
     borderColor: '#d7e0e8',
@@ -1909,24 +1935,29 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     backgroundColor: '#fdfefe',
   },
+
   lineHeaderButton: {
     flex: 1,
   },
+
   lineTitle: {
     fontSize: 15,
     fontWeight: '700',
     color: '#223045',
     marginBottom: 2,
   },
+
   removeText: {
     color: '#9f3a38',
     fontWeight: '600',
   },
+
   collapsedSummary: {
     marginTop: 8,
     color: '#64748b',
     fontSize: 13,
   },
+
   pickerWrap: {
     borderWidth: 1,
     borderColor: '#cbd5e1',
@@ -1936,6 +1967,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 46,
   },
+
   picker: {
     width: '100%',
     height: '100%',
@@ -1943,6 +1975,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 0,
   },
+
   sizeButtonWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1950,6 +1983,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 4,
   },
+
   sizeButton: {
     borderWidth: 1,
     borderColor: '#c9d5df',
@@ -1958,18 +1992,22 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: '#f3f6f9',
   },
+
   sizeButtonSelected: {
     backgroundColor: '#31465f',
     borderColor: '#31465f',
   },
+
   sizeButtonText: {
     color: '#334155',
     fontWeight: '600',
     fontSize: 13,
   },
+
   sizeButtonTextSelected: {
     color: '#ffffff',
   },
+
   detailsBox: {
     marginTop: 12,
     padding: 12,
@@ -1978,15 +2016,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#d6e1ea',
   },
+
   detailText: {
     fontSize: 13,
     color: '#334155',
     marginBottom: 4,
   },
+
   detailLabel: {
     fontWeight: '700',
     color: '#1f2f43',
   },
+
   addInlineButton: {
     marginTop: 10,
     backgroundColor: '#2d3f55',
@@ -1994,12 +2035,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
+
   addInlineButtonText: {
     color: '#ffffff',
     fontWeight: '700',
     fontSize: 14,
     letterSpacing: 0.2,
   },
+
   actionRow: {
     flexDirection: 'row',
     gap: 12,
@@ -2015,11 +2058,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#c7d1d9',
   },
+
   secondaryButtonText: {
     color: '#223045',
     fontWeight: '700',
     fontSize: 15,
   },
+
   exportButton: {
     flex: 1,
     backgroundColor: '#4dbd8b',
@@ -2027,17 +2072,20 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     alignItems: 'center',
   },
+
   exportButtonText: {
     color: '#ffffff',
     fontWeight: '700',
     fontSize: 15,
     letterSpacing: 0.2,
   },
+
   previewLine: {
     fontSize: 13,
     color: '#334155',
     marginBottom: 5,
   },
+
   previewTableHeader: {
     flexDirection: 'row',
     backgroundColor: '#2d3f55',
@@ -2046,6 +2094,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     marginTop: 12,
   },
+
   previewHeaderCell: {
     flex: 1,
     color: '#ffffff',
@@ -2053,6 +2102,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     paddingHorizontal: 4,
   },
+
   previewTableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
@@ -2061,24 +2111,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     backgroundColor: '#f8fafc',
   },
+
   previewCell: {
     flex: 1,
     fontSize: 11,
     color: '#223045',
     paddingHorizontal: 4,
   },
+
   cellLarge: {
     flex: 2.2,
   },
+
   cellMedium: {
     flex: 1.6,
   },
+
   emptyState: {
     marginTop: 12,
     fontSize: 13,
     color: '#64748b',
     fontStyle: 'italic',
   },
+
   emergencyBox: {
     borderWidth: 1,
     borderColor: '#d6e1ea',
@@ -2087,22 +2142,27 @@ const styles = StyleSheet.create({
     padding: 12,
     marginTop: 10,
   },
+
   page: {
     flex: 1,
-    backgroundColor: '#ebeef0',
+    backgroundColor: '#f8fafc',
+    paddingVertical: 20,
   },
+
   pageInner: {
     width: '100%',
-    maxWidth: 1100,
+    maxWidth: 900,
     alignSelf: 'center',
     paddingHorizontal: 18,
     paddingVertical: 22,
   },
+
   required: {
     color: 'red',
     padding: 1,
     marginBottom: 10,
   },
+
   footerWrap: {
     alignItems: 'center',
     marginTop: 20,
@@ -2110,11 +2170,11 @@ const styles = StyleSheet.create({
   },
 
   footerLine: {
-  height: 1,
-  backgroundColor: '#e5e7eb',
-  width: '60%',
-  marginBottom: 6,
-},
+    height: 1,
+    backgroundColor: '#e5e7eb',
+    width: '60%',
+    marginBottom: 6,
+  },
 
   footerText: {
     fontSize: 10,
@@ -2142,8 +2202,9 @@ const styles = StyleSheet.create({
     color: '#475569',
     lineHeight: 20,
   },
+
   labelButton: {
-    backgroundColor: '#16a34a', // green
+    backgroundColor: '#16a34a',
     padding: 16,
     borderRadius: 10,
     marginTop: 15,
@@ -2155,4 +2216,74 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+
+  menuGrid: {
+    flexDirection: 'row',
+    gap: 24,
+    justifyContent: 'center',
+    marginTop: 40,
+  },
+
+  menuTile: {
+    flex: 1,
+    maxWidth: 360,
+    minHeight: 240,
+    backgroundColor: '#e8eef5',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    borderRadius: 22,
+    padding: 28,
+    justifyContent: 'center',
+    shadowColor: '#0f172a',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+
+menuTilePressed: {
+  transform: [{ scale: 0.98 }],
+  backgroundColor: '#dde6ee',
+},
+
+  tileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 10,
+  },
+
+  tileTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1e293b',
+    textAlign: 'center',
+  },
+
+  tileDesc: {
+    fontSize: 15,
+    color: '#475569',
+    lineHeight: 22,
+    textAlign: 'center',
+  },
+
+  tileBgIcon: {
+    position: 'absolute',
+    right: 12,
+    bottom: 12,
+    width: 150,
+    height: 150,
+    opacity: 0.04,
+  },
+
+  menuTileDG: {
+  backgroundColor: '#fef2f2',
+  borderColor: '#f5c2c2',
+},
+
+menuTileCarton: {
+  backgroundColor: '#f0fdf4',
+  borderColor: '#bbf7d0',
+},
 });
