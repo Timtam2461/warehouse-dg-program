@@ -1039,6 +1039,19 @@ export default function App() {
     address: '',
     notes: '',
   });
+
+  const handleClearLabels = () => {
+    setLabelData({
+      customerId: '',
+      manualCustomerName: '',
+      invoice: '',
+      cartons: '',
+      courier: '',
+      address: '',
+      notes: '',
+    });
+  };
+
   const handlePrintLabels = () => {
     const selectedCustomer = customers.find(
       (c) => c.id === labelData.customerId
@@ -1167,12 +1180,17 @@ export default function App() {
   };
 
   const applyCustomerToShipment = (customerCode) => {
-    const selected = CUSTOMERS.find(
+    const selected = customers.find(
       (item) => item.customerCode === customerCode
     );
 
     if (!selected) {
-      updateShipment('customerLookup', customerCode);
+      setShipment((prev) => ({
+        ...prev,
+        customerLookup: customerCode,
+        consigneeName: '',
+        consigneeAddress: '',
+      }));
       return;
     }
 
@@ -1292,7 +1310,7 @@ export default function App() {
       <SafeAreaView style={styles.page}>
         <ScrollView contentContainerStyle={styles.pageInner}>
           <Text style={styles.title}>Warehouse Dispatch Program</Text>
-          <Text style={styles.subtitle}>Select what you need to create.</Text>
+          <Text style={styles.subtitle}>Select what you need to create</Text>
 
           <View style={styles.menuGrid}>
             {/* DG TILE */}
@@ -1363,46 +1381,48 @@ export default function App() {
             <Text style={styles.sectionTitle}>Carton Labels</Text>
 
             <Text style={styles.label}>Customer</Text>
-            <Picker
-              selectedValue={labelData.customerId}
-              onValueChange={(value) => {
-                const selected = customers.find((c) => c.id === value);
+            <View style={styles.pickerWrap}>
+              <Picker
+                style={styles.picker}
+                selectedValue={labelData.customerId}
+                onValueChange={(value) => {
+                  const selected = customers.find((c) => c.id === value);
 
-                const fullAddress = selected
-                  ? [
-                      selected.addressLine1,
-                      selected.addressLine2,
-                      selected.suburb,
-                      selected.state,
-                      selected.postcode,
-                    ]
-                      .filter(Boolean)
-                      .join(', ')
-                  : '';
+                  const fullAddress = selected
+                    ? [
+                        selected.addressLine1,
+                        selected.addressLine2,
+                        selected.suburb,
+                        selected.state,
+                        selected.postcode,
+                      ]
+                        .filter(Boolean)
+                        .join(', ')
+                    : '';
 
-                setLabelData({
-                  ...labelData,
-                  customerId: value,
-                  courier: selected?.defaultCourier || labelData.courier,
-                  address: fullAddress,
-                });
-              }}>
-              {' '}
-              <Picker.Item label="Select customer..." value="" />
-              {customers.map((c) => (
-                <Picker.Item
-                  key={c.id}
-                  label={`${c.customerName} (${c.customerCode})`}
-                  value={c.id}
-                />
-              ))}
-            </Picker>
+                  setLabelData({
+                    ...labelData,
+                    customerId: value,
+                    courier: selected?.defaultCourier || labelData.courier,
+                    address: fullAddress,
+                  });
+                }}>
+                <Picker.Item label="Select customer..." value="" />
+                {customers.map((c) => (
+                  <Picker.Item
+                    key={c.id}
+                    label={`${c.customerName} (${c.customerCode})`}
+                    value={c.id}
+                  />
+                ))}
+              </Picker>
+            </View>
 
             <Text style={styles.label}>Customer Name Override</Text>
             <TextInput
               style={styles.input}
               value={labelData.manualCustomerName}
-              placeholder="Leave blank unless different from selected customer"
+              placeholder="Customer Name"
               onChangeText={(text) =>
                 setLabelData({ ...labelData, manualCustomerName: text })
               }
@@ -1455,11 +1475,19 @@ export default function App() {
               }
             />
 
-            <TouchableOpacity
-              style={styles.labelButton}
-              onPress={handlePrintLabels}>
-              <Text style={styles.labelButtonText}>Print Labels</Text>
-            </TouchableOpacity>
+            <View style={styles.labelActionRow}>
+              <TouchableOpacity
+                style={[styles.labelButton, styles.labelButtonFlex]}
+                onPress={handlePrintLabels}>
+                <Text style={styles.labelButtonText}>Print Labels</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.clearButton, styles.labelButtonFlex]}
+                onPress={handleClearLabels}>
+                <Text style={styles.clearButtonText}>Clear</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -1836,10 +1864,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#e9eef2',
   },
+
   container: {
     padding: 20,
     paddingBottom: 48,
   },
+
   loadingWrap: {
     flex: 1,
     justifyContent: 'center',
@@ -1847,16 +1877,19 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: '#e9eef2',
   },
+
   loadingText: {
     fontSize: 16,
     color: '#475569',
     fontWeight: '500',
   },
+
   errorText: {
     fontSize: 16,
     color: '#b45309',
     textAlign: 'center',
   },
+
   title: {
     fontSize: 30,
     fontWeight: '700',
@@ -1864,11 +1897,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     letterSpacing: 0.2,
   },
+
   subtitle: {
     fontSize: 14,
     color: '#363636',
     marginBottom: 18,
   },
+
   card: {
     backgroundColor: '#f8fafc',
     borderRadius: 16,
@@ -1882,6 +1917,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 2,
   },
+
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
@@ -1889,6 +1925,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     letterSpacing: 0.2,
   },
+
   label: {
     fontSize: 13,
     fontWeight: '600',
@@ -1896,6 +1933,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginTop: 4,
   },
+
   requiredText: {
     fontSize: 13,
     fontWeight: '450',
@@ -2181,6 +2219,7 @@ const styles = StyleSheet.create({
     color: '#c2c2c2',
     textAlign: 'center',
   },
+
   menuButton: {
     backgroundColor: '#e8eef5',
     borderWidth: 1,
@@ -2241,10 +2280,10 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
 
-menuTilePressed: {
-  transform: [{ scale: 0.98 }],
-  backgroundColor: '#dde6ee',
-},
+  menuTilePressed: {
+    transform: [{ scale: 0.98 }],
+    backgroundColor: '#dde6ee',
+  },
 
   tileHeader: {
     flexDirection: 'row',
@@ -2278,12 +2317,38 @@ menuTilePressed: {
   },
 
   menuTileDG: {
-  backgroundColor: '#fef2f2',
-  borderColor: '#f5c2c2',
-},
+    backgroundColor: '#fef2f2',
+    borderColor: '#f5c2c2',
+  },
 
-menuTileCarton: {
-  backgroundColor: '#f0fdf4',
-  borderColor: '#bbf7d0',
-},
+  menuTileCarton: {
+    backgroundColor: '#f0fdf4',
+    borderColor: '#bbf7d0',
+  },
+
+  labelActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 15,
+  },
+
+  labelButtonFlex: {
+    flex: 1,
+    marginTop: 0,
+  },
+
+  clearButton: {
+    backgroundColor: '#e5e7eb',
+    padding: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+  },
+
+  clearButtonText: {
+    color: '#334155',
+    fontSize: 16,
+    fontWeight: '700',
+  },
 });
