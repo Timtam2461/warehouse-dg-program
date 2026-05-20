@@ -935,9 +935,9 @@ const buildLabelHtml = (customer, data, cartonCount) => {
       <div class="label">
         <div class="top">
 <div class="customer">
-  ${customer.customerName || data.manualCustomerName}
+${customer.customerName || data.customerSearch || ''}
 </div>
-          <div class="code">ACC: ${customer.customerCode}</div>
+<div class="code">ACC: ${customer.customerCode || data.customerCode || ''}</div>
         </div>
 
         <div class="middle">
@@ -1032,23 +1032,27 @@ export default function App() {
 
   const [labelData, setLabelData] = useState({
     customerId: '',
-    manualCustomerName: '',
+    customerSearch: '',
+    customerCode: '',
     invoice: '',
     cartons: '',
     courier: '',
     address: '',
     notes: '',
+    customerMatches: [],
   });
 
   const handleClearLabels = () => {
     setLabelData({
       customerId: '',
-      manualCustomerName: '',
+      customerSearch: '',
+      customerCode: '',
       invoice: '',
       cartons: '',
       courier: '',
       address: '',
       notes: '',
+      customerMatches: [],
     });
   };
 
@@ -1057,16 +1061,18 @@ export default function App() {
       (c) => c.id === labelData.customerId
     );
 
-    const manualCustomerName = labelData.manualCustomerName.trim();
+    const typedCustomer = labelData.customerSearch.trim();
 
-    if (!selectedCustomer && !manualCustomerName) {
-      Alert.alert('Please select a customer or enter a one-off customer name');
+    if (!selectedCustomer && !typedCustomer) {
+      Alert.alert(
+        'Please select a customer or enter an account code / customer name'
+      );
       return;
     }
 
     const customerForLabel = selectedCustomer || {
-      customerName: manualCustomerName,
-      customerCode: '',
+      customerName: typedCustomer,
+      customerCode: labelData.customerCode || typedCustomer,
     };
     const cartonCount = Number(labelData.cartons);
     if (!cartonCount || cartonCount < 1) {
@@ -1380,53 +1386,60 @@ export default function App() {
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Carton Labels</Text>
 
-            <Text style={styles.label}>Customer</Text>
-            <View style={styles.pickerWrap}>
-              <Picker
-                style={styles.picker}
-                selectedValue={labelData.customerId}
-                onValueChange={(value) => {
-                  const selected = customers.find((c) => c.id === value);
+            <Text style={styles.label}>Customer / Account Code</Text>
 
-                  const fullAddress = selected
-                    ? [
-                        selected.addressLine1,
-                        selected.addressLine2,
-                        selected.suburb,
-                        selected.state,
-                        selected.postcode,
-                      ]
-                        .filter(Boolean)
-                        .join(', ')
-                    : '';
+            <TextInput
+              style={styles.input}
+              placeholder="Type account code or customer name"
+              value={labelData.customerSearch}
+              onChangeText={(text) => {
+                const matches = customers.filter((c) =>
+                  `${c.customerCode} ${c.customerName}`
+                    .toLowerCase()
+                    .includes(text.toLowerCase())
+                );
+
+                setLabelData({
+                  ...labelData,
+                  customerSearch: text,
+                  customerCode: text,
+                  customerId: '',
+                  address: '',
+                  customerMatches: text ? matches.slice(0, 8) : [],
+                });
+              }}
+            />
+
+            {labelData.customerMatches.map((customer) => (
+              <TouchableOpacity
+                key={customer.id}
+                style={styles.customerResult}
+                onPress={() => {
+                  const fullAddress = [
+                    customer.addressLine1,
+                    customer.addressLine2,
+                    customer.suburb,
+                    customer.state,
+                    customer.postcode,
+                  ]
+                    .filter(Boolean)
+                    .join(', ');
 
                   setLabelData({
                     ...labelData,
-                    customerId: value,
-                    courier: selected?.defaultCourier || labelData.courier,
+                    customerId: customer.id,
+                    customerSearch: `${customer.customerCode} - ${customer.customerName}`,
+                    customerCode: customer.customerCode,
                     address: fullAddress,
+                    courier: customer.defaultCourier || labelData.courier,
+                    customerMatches: [],
                   });
                 }}>
-                <Picker.Item label="Select customer..." value="" />
-                {customers.map((c) => (
-                  <Picker.Item
-                    key={c.id}
-                    label={`${c.customerName} (${c.customerCode})`}
-                    value={c.id}
-                  />
-                ))}
-              </Picker>
-            </View>
-
-            <Text style={styles.label}>Customer Name Override</Text>
-            <TextInput
-              style={styles.input}
-              value={labelData.manualCustomerName}
-              placeholder="Customer Name"
-              onChangeText={(text) =>
-                setLabelData({ ...labelData, manualCustomerName: text })
-              }
-            />
+                <Text style={styles.customerResultText}>
+                  {customer.customerCode} - {customer.customerName}
+                </Text>
+              </TouchableOpacity>
+            ))}
 
             <Text style={styles.label}>Invoice / Order #</Text>
             <TextInput
@@ -2350,5 +2363,18 @@ const styles = StyleSheet.create({
     color: '#334155',
     fontSize: 16,
     fontWeight: '700',
+  },
+  customerResult: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    marginTop: 6,
+    backgroundColor: '#fff',
+  },
+
+  customerResultText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
