@@ -950,9 +950,14 @@ ${(data.address || '').replace(/, /g, '<br/>')}
 </div>
         </div>
 
+${
+  data.notes
+    ? `<div class="notes"><strong>Notes:</strong><br>${data.notes}</div>`
+    : ''
+}
+
         <div class="carton">CARTON ${i} OF ${cartonCount}</div>
 
-        <div class="notes">${data.notes || ''}</div>
       </div>
     `;
   }
@@ -1011,11 +1016,13 @@ ${(data.address || '').replace(/, /g, '<br/>')}
             padding: 10px;
           }
 
-          .notes {
-            font-size: 16px;
-            text-align: center;
-            font-weight: bold;
-          }
+.notes {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: normal;
+  text-align: left;
+  white-space: pre-wrap;
+}
         </style>
       </head>
       <body>
