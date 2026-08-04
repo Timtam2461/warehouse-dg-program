@@ -1379,6 +1379,20 @@ export default function App() {
   }
 
   if (screen === 'labels') {
+    const previewCustomer = customers.find(
+      (customer) => customer.id === labelData.customerId
+    );
+
+    const previewCustomerName =
+      previewCustomer?.customerName ||
+      labelData.customerSearch ||
+      'CUSTOMER NAME';
+
+    const previewCustomerCode =
+      previewCustomer?.customerCode || labelData.customerCode || 'ACCOUNT CODE';
+
+    const previewCartonCount = Math.max(Number(labelData.cartons) || 1, 1);
+
     return (
       <SafeAreaView style={styles.page}>
         <ScrollView contentContainerStyle={styles.pageInner}>
@@ -1390,123 +1404,174 @@ export default function App() {
 
           <Text style={styles.title}>Carton Labels</Text>
 
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Carton Labels</Text>
+          <View style={styles.labelPageLayout}>
+            <View style={[styles.card, styles.labelFormColumn]}>
+              <Text style={styles.sectionTitle}>Carton Labels</Text>
 
-            <Text style={styles.label}>Customer / Account Code</Text>
+              <Text style={styles.label}>Customer / Account Code</Text>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Type account code or customer name"
-              value={labelData.customerSearch}
-              onChangeText={(text) => {
-                const matches = customers.filter((c) =>
-                  `${c.customerCode} ${c.customerName}`
-                    .toLowerCase()
-                    .includes(text.toLowerCase())
-                );
-
-                setLabelData({
-                  ...labelData,
-                  customerSearch: text,
-                  customerCode: text,
-                  customerId: '',
-                  address: '',
-                  customerMatches: text ? matches.slice(0, 8) : [],
-                });
-              }}
-            />
-
-            {labelData.customerMatches.map((customer) => (
-              <TouchableOpacity
-                key={customer.id}
-                style={styles.customerResult}
-                onPress={() => {
-                  const fullAddress = [
-                    customer.addressLine1,
-                    customer.addressLine2,
-                    customer.suburb,
-                    customer.state,
-                    customer.postcode,
-                  ]
-                    .filter(Boolean)
-                    .join(', ');
+              <TextInput
+                style={styles.input}
+                placeholder="Type account code or customer name"
+                value={labelData.customerSearch}
+                onChangeText={(text) => {
+                  const matches = customers.filter((c) =>
+                    `${c.customerCode} ${c.customerName}`
+                      .toLowerCase()
+                      .includes(text.toLowerCase())
+                  );
 
                   setLabelData({
                     ...labelData,
-                    customerId: customer.id,
-                    customerSearch: `${customer.customerCode} - ${customer.customerName}`,
-                    customerCode: customer.customerCode,
-                    address: fullAddress,
-                    courier: customer.defaultCourier || labelData.courier,
-                    customerMatches: [],
+                    customerSearch: text,
+                    customerCode: text,
+                    customerId: '',
+                    address: '',
+                    customerMatches: text ? matches.slice(0, 8) : [],
                   });
-                }}>
-                <Text style={styles.customerResultText}>
-                  {customer.customerCode} - {customer.customerName}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                }}
+              />
 
-            <Text style={styles.label}>Invoice / Order #</Text>
-            <TextInput
-              style={styles.input}
-              value={labelData.invoice}
-              onChangeText={(text) =>
-                setLabelData({ ...labelData, invoice: text })
-              }
-            />
+              {labelData.customerMatches.map((customer) => (
+                <TouchableOpacity
+                  key={customer.id}
+                  style={styles.customerResult}
+                  onPress={() => {
+                    const fullAddress = [
+                      customer.addressLine1,
+                      customer.addressLine2,
+                      customer.suburb,
+                      customer.state,
+                      customer.postcode,
+                    ]
+                      .filter(Boolean)
+                      .join(', ');
 
-            <Text style={styles.label}>Number of Cartons</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={labelData.cartons}
-              onChangeText={(text) =>
-                setLabelData({ ...labelData, cartons: text })
-              }
-            />
+                    setLabelData({
+                      ...labelData,
+                      customerId: customer.id,
+                      customerSearch: `${customer.customerCode} - ${customer.customerName}`,
+                      customerCode: customer.customerCode,
+                      address: fullAddress,
+                      courier: customer.defaultCourier || labelData.courier,
+                      customerMatches: [],
+                    });
+                  }}>
+                  <Text style={styles.customerResultText}>
+                    {customer.customerCode} - {customer.customerName}
+                  </Text>
+                </TouchableOpacity>
+              ))}
 
-            <Text style={styles.label}>Courier</Text>
-            <TextInput
-              style={styles.input}
-              value={labelData.courier}
-              onChangeText={(text) =>
-                setLabelData({ ...labelData, courier: text })
-              }
-            />
+              <Text style={styles.label}>Invoice / Order #</Text>
+              <TextInput
+                style={styles.input}
+                value={labelData.invoice}
+                onChangeText={(text) =>
+                  setLabelData({ ...labelData, invoice: text })
+                }
+              />
 
-            <Text style={styles.label}>Address</Text>
-            <TextInput
-              style={[styles.input, styles.multilineInput]}
-              multiline
-              value={labelData.address}
-              onChangeText={(text) =>
-                setLabelData({ ...labelData, address: text })
-              }
-            />
+              <Text style={styles.label}>Number of Cartons</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                value={labelData.cartons}
+                onChangeText={(text) =>
+                  setLabelData({ ...labelData, cartons: text })
+                }
+              />
 
-            <Text style={styles.label}>Notes (optional)</Text>
-            <TextInput
-              style={styles.input}
-              value={labelData.notes}
-              onChangeText={(text) =>
-                setLabelData({ ...labelData, notes: text })
-              }
-            />
+              <Text style={styles.label}>Courier</Text>
+              <TextInput
+                style={styles.input}
+                value={labelData.courier}
+                onChangeText={(text) =>
+                  setLabelData({ ...labelData, courier: text })
+                }
+              />
 
-            <View style={styles.labelActionRow}>
-              <TouchableOpacity
-                style={[styles.labelButton, styles.labelButtonFlex]}
-                onPress={handlePrintLabels}>
-                <Text style={styles.labelButtonText}>Print Labels</Text>
-              </TouchableOpacity>
+              <Text style={styles.label}>Address</Text>
+              <TextInput
+                style={[styles.input, styles.multilineInput]}
+                multiline
+                value={labelData.address}
+                onChangeText={(text) =>
+                  setLabelData({ ...labelData, address: text })
+                }
+              />
 
-              <TouchableOpacity
-                style={[styles.clearButton, styles.labelButtonFlex]}
-                onPress={handleClearLabels}>
-                <Text style={styles.clearButtonText}>Clear</Text>
-              </TouchableOpacity>
+              <Text style={styles.label}>Notes (optional)</Text>
+              <TextInput
+                style={styles.input}
+                value={labelData.notes}
+                onChangeText={(text) =>
+                  setLabelData({ ...labelData, notes: text })
+                }
+              />
+
+              <View style={styles.labelActionRow}>
+                <TouchableOpacity
+                  style={[styles.labelButton, styles.labelButtonFlex]}
+                  onPress={handlePrintLabels}>
+                  <Text style={styles.labelButtonText}>Print Labels</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.clearButton, styles.labelButtonFlex]}
+                  onPress={handleClearLabels}>
+                  <Text style={styles.clearButtonText}>Clear</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.previewColumn}>
+              <Text style={styles.previewTitle}>Label Preview</Text>
+
+              <View style={styles.labelPreview}>
+                <View>
+                  <Text style={styles.previewCustomerText}>
+                    {previewCustomerName}
+                  </Text>
+
+                  <Text style={styles.previewCodeText}>
+                    ACC: {previewCustomerCode}
+                  </Text>
+                </View>
+
+                <View style={styles.previewMiddle}>
+                  {labelData.invoice ? (
+                    <Text style={styles.previewInvoiceText}>
+                      INV: {labelData.invoice}
+                    </Text>
+                  ) : null}
+
+                  <Text style={styles.previewCourierText}>
+                    Courier: {labelData.courier || '-'}
+                  </Text>
+
+                  <Text style={styles.previewAddressText}>
+                    {labelData.address
+                      ? labelData.address.replace(/, /g, '\n')
+                      : '-'}
+                  </Text>
+                </View>
+
+                {labelData.notes ? (
+                  <View style={styles.previewNotesWrap}>
+                    <Text style={styles.previewNotesHeading}>Notes:</Text>
+                    <Text style={styles.previewNotesText}>
+                      {labelData.notes}
+                    </Text>
+                  </View>
+                ) : null}
+
+                <View style={styles.previewCartonBox}>
+                  <Text style={styles.previewCartonText}>
+                    CARTON 1 OF {previewCartonCount}
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
         </ScrollView>
@@ -2383,5 +2448,116 @@ const styles = StyleSheet.create({
   customerResultText: {
     fontSize: 14,
     fontWeight: '600',
+  },
+
+  labelPageLayout: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    gap: 20,
+  },
+
+  labelFormColumn: {
+    flex: 1,
+    minWidth: 420,
+  },
+
+  previewColumn: {
+    width: 300,
+    maxWidth: '100%',
+  },
+
+  previewTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 8,
+  },
+
+  labelPreview: {
+    width: '100%',
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#9ca3af',
+    borderRadius: 6,
+    padding: 16,
+    minHeight: 220,
+    aspectRatio: 2 / 3,
+    justifyContent: 'space-between',
+  },
+
+  previewCustomerText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#111827',
+  },
+
+  previewDetails: {
+    fontSize: 13,
+    lineHeight: 21,
+    color: '#111827',
+    marginTop: 16,
+  },
+
+  previewCodeText: {
+    fontSize: 11,
+    color: '#111827',
+    marginTop: 3,
+  },
+
+  previewMiddle: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingVertical: 14,
+  },
+
+  previewInvoiceText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 10,
+  },
+
+  previewCourierText: {
+    fontSize: 13,
+    color: '#111827',
+    marginBottom: 10,
+  },
+
+  previewAddressText: {
+    fontSize: 13,
+    lineHeight: 19,
+    color: '#111827',
+  },
+
+  previewNotesWrap: {
+    marginBottom: 12,
+  },
+
+  previewNotesHeading: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#111827',
+  },
+
+  previewNotesText: {
+    fontSize: 11,
+    lineHeight: 16,
+    color: '#111827',
+    marginTop: 2,
+  },
+
+  previewCartonBox: {
+    borderWidth: 2,
+    borderColor: '#111827',
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+  },
+
+  previewCartonText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#111827',
+    textAlign: 'center',
   },
 });
